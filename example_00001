@@ -1,0 +1,54 @@
+<?php
+
+// initialise mysqli. notice I changed the name of the database to "login_page".
+$mysqli = new mysqli("localhost", "root", "", "login_page");
+
+// check connection to database
+if($mysqli->connect_error)
+{
+	exit('Error db');
+}
+
+// check if username AND password are both posted to this php page.
+if(isset($_POST['username']) && isset($_POST['password']))
+{
+	// make sql statement. notice I changed the table name to "login_page" no spaces.
+	$sql = "SELECT * from login_page WHERE username = ? AND password = ?";
+
+	// make into a "prepared statement" and execute.
+	$stmt = $mysqli->prepare($sql);
+	
+	// the "ss" below means that the question mark 1 (username = ?) is a string, and that also question mark 2 (password = ?) is also a string. 
+	// if the question marks represented integers (numbers) then the following statement would be:
+	// "$stmt->bind_param("ii", $pid);"
+	// which means "i" for integer, and because there's 2 question marks it'd be "ii" for 2 integers. 
+	// so "ss" below means "? = a string and ? = a string".
+	
+	$stmt->bind_param("ss", $_POST['username'], $_POST['password']);
+	
+	// also, putting the post variables of username and password in there is quicker than writing out another variable like: 
+	// $username	=	$_POST['username']. 
+	// the first "s" represents the $_POST['username'], and the second "s" represents the $_POST['password']. 
+	// They're go in order of how you wrote them in your $sql statement.
+	
+	$stmt->execute();
+
+	// get data results into an array.
+	$res = $stmt->get_result();
+	$data = $res->fetch_all(MYSQLI_ASSOC);
+
+	// echo a '<pre>' tag so it'll print the below array out in good style.
+	echo '<pre>';
+	
+	// print array to the browser so you can see the data:
+	print_r($data);
+	
+	// close tag.
+	echo '</pre>';
+	
+	// viola!
+}
+
+
+
+?>
